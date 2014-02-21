@@ -15,7 +15,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     }).addTo(map)
 
 navigator.geolocation.getCurrentPosition (pos) ->
-  map.setView [pos.coords.latitude, pos.coords.longitude], 13
+  map.setView [pos.coords.latitude, pos.coords.longitude], 10
 
 #{{{1 utility
 sinh = (x) -> (Math.pow(Math.E,x) - Math.pow(Math.E, -x))/2
@@ -31,9 +31,37 @@ tile2coordZoom = (zoom) -> (x, y) ->
 canvasTiles = L.tileLayer.canvas()
 canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
   tile2coord = tile2coordZoom zoom
-  x = tilePoint.x
-  y = tilePoint.y
-  [lat, lng] = tile2coord x, y
+
+  do ->
+    ctx = canvas.getContext "2d"
+    im = ctx.getImageData 0,0,255,255
+    w = im.width
+    for y in [0..255] by 2
+      for x in [0..255] by 2
+        [lng, lat] = tile2coord tilePoint.x + x/256, tilePoint.y + y/256
+        d = 0
+        maxDist = 10000
+        parkomat = undefined
+        for obj in points
+          dlng = obj.lng - lng
+          dlng *= dlng
+          dlat = obj.lat - lat
+          dlat *= dlat
+          if dlat+dlng < maxDist
+            maxDist = dlat+dlng
+            parkomat = obj
+
+        for dx in [0..1]
+          for dy in [0..1]
+            if maxDist < 0.01
+              im.data[4*(x+dx+(y+dy)*w)] = parkomat.sampling*256/40000
+              im.data[4*(x+dx+(y+dy)*w)+1] = parkomat.sampling*256/40000
+              im.data[4*(x+dx+(y+dy)*w)+2] = parkomat.sampling*256/40000
+              im.data[4*(x+dx+(y+dy)*w)+3] = 100
+    console.log im, maxDist
+    ctx.putImageData im, 0, 0
+
+
 
   #console.log lat, lng, tile2coord x+1, y+1
   ###

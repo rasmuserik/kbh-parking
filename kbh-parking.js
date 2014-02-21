@@ -19,7 +19,7 @@
   }).addTo(map);
 
   navigator.geolocation.getCurrentPosition(function(pos) {
-    return map.setView([pos.coords.latitude, pos.coords.longitude], 13);
+    return map.setView([pos.coords.latitude, pos.coords.longitude], 10);
   });
 
   sinh = function(x) {
@@ -37,11 +37,45 @@
   canvasTiles = L.tileLayer.canvas();
 
   canvasTiles.drawTile = function(canvas, tilePoint, zoom) {
-    var lat, lng, tile2coord, x, y, _ref;
+    var tile2coord;
     tile2coord = tile2coordZoom(zoom);
-    x = tilePoint.x;
-    y = tilePoint.y;
-    return _ref = tile2coord(x, y), lat = _ref[0], lng = _ref[1], _ref;
+    return (function() {
+      var ctx, d, dlat, dlng, dx, dy, im, lat, lng, maxDist, obj, parkomat, w, x, y, _i, _j, _k, _l, _len, _m, _ref;
+      ctx = canvas.getContext("2d");
+      im = ctx.getImageData(0, 0, 255, 255);
+      w = im.width;
+      for (y = _i = 0; _i <= 255; y = _i += 2) {
+        for (x = _j = 0; _j <= 255; x = _j += 2) {
+          _ref = tile2coord(tilePoint.x + x / 256, tilePoint.y + y / 256), lng = _ref[0], lat = _ref[1];
+          d = 0;
+          maxDist = 10000;
+          parkomat = void 0;
+          for (_k = 0, _len = points.length; _k < _len; _k++) {
+            obj = points[_k];
+            dlng = obj.lng - lng;
+            dlng *= dlng;
+            dlat = obj.lat - lat;
+            dlat *= dlat;
+            if (dlat + dlng < maxDist) {
+              maxDist = dlat + dlng;
+              parkomat = obj;
+            }
+          }
+          for (dx = _l = 0; _l <= 1; dx = ++_l) {
+            for (dy = _m = 0; _m <= 1; dy = ++_m) {
+              if (maxDist < 0.01) {
+                im.data[4 * (x + dx + (y + dy) * w)] = parkomat.sampling * 256 / 40000;
+                im.data[4 * (x + dx + (y + dy) * w) + 1] = parkomat.sampling * 256 / 40000;
+                im.data[4 * (x + dx + (y + dy) * w) + 2] = parkomat.sampling * 256 / 40000;
+                im.data[4 * (x + dx + (y + dy) * w) + 3] = 100;
+              }
+            }
+          }
+        }
+      }
+      console.log(im, maxDist);
+      return ctx.putImageData(im, 0, 0);
+    })();
     /*
     ctx = canvas.getContext "2d"
     setInterval (->

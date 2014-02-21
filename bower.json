@@ -1,0 +1,13 @@
+{
+  "name": "kbh-parking",
+  "version": "0.0.1",
+  "description": "parking map during hackathon",
+  "keywords": [],
+  "authors": [
+    "Rasmus Erik Voel Jensen (solsort.com)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rasmuserik/kbh-parking.git"
+  }
+}

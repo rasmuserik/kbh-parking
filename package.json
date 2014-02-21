@@ -1,0 +1,33 @@
+{
+  "name": "kbh-parking",
+  "version": "0.0.1",
+  "devDependencies": {
+    "reputil": "*"
+  },
+  "description": "parking map during hackathon",
+  "keywords": [],
+  "author": ["Rasmus Erik Voel Jensen (solsort.com)"],
+  "scripts": {
+    "prepublish": "reputil build; git add kbh-parking.js README.md",
+    "start": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rasmuserik/kbh-parking.git"
+  },
+  "dependencies": {
+  },
+  "testling": {
+    "html": "test.html",
+    "browsers": [
+      "ie/7..latest",
+      "chrome/27..canary",
+      "firefox/22..nightly",
+      "safari/5.0.5..latest",
+      "opera/11.6..next",
+      "iphone/6",
+      "ipad/6",
+      "android-browser/4.2"
+    ]
+  }
+}

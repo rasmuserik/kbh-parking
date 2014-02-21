@@ -4,7 +4,11 @@ parking map during hackathon
 [![browser support](https://ci.testling.com/rasmuserik/kbh-parking.png)](http://ci.testling.com/rasmuserik/kbh-parking)
 
 
-setup
+# Code during iot hackathon
+
+hackathon code in progress
+
+# setup
 
     mapElem.style.width = window.innerWidth + "px"
     mapElem.style.height = window.innerHeight + "px"
@@ -42,51 +46,48 @@ setup
       y = tilePoint.y
       [lat, lng] = tile2coord x, y
     
-      console.log lat, lng, tile2coord x+1, y+1
+
+console.log lat, lng, tile2coord x+1, y+1
+##
+
       ctx = canvas.getContext "2d"
-      ctx.fillRect 1,0,10,10
+      setInterval (->
+        ctx.fillRect Math.random() * 256, Math.random() * 256,3,3
+      ), 1000
+
+##
+
     
       
-    
-    
     canvasTiles.addTo map
-    
-    
 
-##
+# experiment
 
-    heatmapLayer = L.TileLayer.heatMap
-      radius: 20
-      opacity: 0.8
-      gradient:
-        0.45: "rgb(0,0,255)"
-        0.55: "rgb(0,255,255)"
-        0.65: "rgb(0,255,0)"
-      0.95: "yellow"
-      1.0: "rgb(255,0,0)"
-     
-    testData =
-      max: 46,
-      data: ({lat: 33 +Math.random() * Math.random(), lon: 117 + Math.random() * Math.random(), value: 1} for i in [1..100])
     
-    console.log testData
+    parkomatGet = (offset, limit, fn) ->
+      $.ajax
+        url: 'http://data.kk.dk/api/action/datastore_search'
+        data:
+          resource_id: '660e19fa-8838-4a5c-9495-0d7f94fab51e'
+          offset: offset
+          limit: limit
+        dataType: 'jsonp'
+        success: (data) ->
+          fn(data.result?.records)
     
+    parkomatCount = (fn) ->
+      $.ajax
+        url: 'http://data.kk.dk/api/action/datastore_search_sql'
+        data:
+          sql: 'SELECT COUNT (*) from "660e19fa-8838-4a5c-9495-0d7f94fab51e"'
+        dataType: 'jsonp'
+        success: (data) ->
+          fn +data.result.records[0].count
     
-    heatmapLayer.addData testData.data
-     
-    overlayMaps = { 'Heatmap': heatmapLayer }
-     
-    controls = L.control.layers(null, overlayMaps, {collapsed: false})
-     
-    map = new L.Map('map',
-      center: new L.LatLng(51.505, -0.09)
-      zoom: 6
-      layers: [baseLayer, heatmapLayer])
-     
-    controls.addTo map
-
-##
-
+    parkomatCount (n) ->
+      console.log "count", n
+      parkomatGet n - 3*24000, 3*24000, (result) ->
+        console.log "got n", result.length
     
 
 ----

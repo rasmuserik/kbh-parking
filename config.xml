@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.solsort.kbhparking" version="1.0.0">
+  <name short="CphParking">Parkering i København</name>
+
+  <description>Heatmap over hvor der sandsynligvis er frie parkeringspladser</description>
+
+  <author href="http://www.solsort.com/"> solsort.com </author>
+  <icon src="icon.png" gap:role="default" />
+
+  <gap:platforms>
+    <gap:platform name="ios" />
+    <gap:platform name="android" />
+  </gap:platforms>
+
+  <feature name="Geolocation">
+        <param name="android-package" value="org.apache.cordova.geolocation.GeoBroker" />
+        <param name="ios-package" value="CDVLocation" />
+  </feature>
+
+  <preference name="fullscreen" value="true" /> 
+
+</widget>

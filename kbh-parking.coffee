@@ -216,3 +216,4 @@ $ ->
       console.log canvas.toDataURL()
       L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
       desc.style.opacity = 0
+      desc.style.zIndex = 0

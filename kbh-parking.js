@@ -264,7 +264,8 @@
       return render(function() {
         console.log(canvas.toDataURL());
         L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
-        return desc.style.opacity = 0;
+        desc.style.opacity = 0;
+        return desc.style.zIndex = 0;
       });
     });
   });

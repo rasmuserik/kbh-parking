@@ -2,6 +2,10 @@
 (function() {
   var canvasTiles, loadRecent, map, maxLat, maxLng, minLat, minLng, now, parkomatCount, parkomatGet, parkomats, render, sinh, tile2coordZoom, updatePoints;
 
+  if (!navigator.userAgent.match(/Chrome/)) {
+    throw "error";
+  }
+
   desc.style.fontSize = window.innerHeight * .03 + "px";
 
   map = L.map('mapElem');

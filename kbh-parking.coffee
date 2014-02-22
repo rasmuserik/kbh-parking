@@ -2,6 +2,8 @@
 #
 # hackathon code in progress
 #
+if !navigator.userAgent.match(/Chrome/)
+  throw "error"
 #{{{1 setup
 
 desc.style.fontSize =  window.innerHeight*.03 + "px"

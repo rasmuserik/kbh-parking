@@ -32,7 +32,7 @@ canvasTiles = L.tileLayer.canvas()
 canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
   tile2coord = tile2coordZoom zoom
 
-  do ->
+  if false
     ctx = canvas.getContext "2d"
     im = ctx.getImageData 0,0,255,255
     w = im.width
@@ -42,7 +42,7 @@ canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
         d = 0
         maxDist = 10000
         parkomat = undefined
-        for obj in points
+        for _, obj of points
           dlng = obj.lng - lng
           dlng *= dlng
           dlat = obj.lat - lat
@@ -73,7 +73,7 @@ canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
 
   
 canvasTiles.addTo map
-#{{{1 experiment
+#{{{1 talk with server
 
 parkomatGet = (offset, limit, fn) ->
   $.ajax
@@ -95,7 +95,37 @@ parkomatCount = (fn) ->
     success: (data) ->
       fn +data.result.records[0].count
 
-parkomatCount (n) ->
-  console.log "count", n
-  parkomatGet n - 3*24000, 3*24000, (result) ->
-    console.log "got n", result.length
+loadRecent = (fn) ->
+  parkomatCount (n) ->
+    console.log "count", n
+    # TODO: should probably be closer to 100000
+    parkomatGet n - 70000, 70000, (result) ->
+      console.log "got n", result.length
+      fn result
+
+now = undefined
+updatePoints = (fn) ->
+  for _, parkomat of points
+    parkomat.used = 0
+  loadRecent (events) ->
+    console.log events[0]
+    latest = events.reduce ((a, b)->
+      if a.tlPayDateTime > b.tlExpDateTime then a else b
+    ), {tlPayDateTime: ""}
+    now = latest.tlPayDateTime
+
+    missing = 0
+    current = (events.filter (e) -> e.tlPayDateTime < now < e.tlExpDateTime)
+    for event in current
+      parkomat = points[event.tlPDM]
+      if parkomat
+        ++parkomat.used
+      else
+        ++missing
+    console.log "missing out of", missing, current.length
+    fn()
+
+
+$ ->
+    updatePoints ->
+      undefined

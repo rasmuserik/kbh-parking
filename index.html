@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Copenhage Parking</title>
+        <title>Copenhagen Parking</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="HandheldFriendly" content="True">
@@ -18,9 +18,41 @@
         <script src="lib/jquery-2.1.0.js"></script>
         <!--script src="lib/heatmap.js"></script>
         <script src="lib/heatmap-leaflet.js"></script-->
+        <style>
+          #desc {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 86%;
+            z-index: 20;
+            border-radius: 10%;
+            margin: 5%;
+            padding: 2%;
+            background-color: rgba(255,255,255,0.7);
+            font-family: sans-serif;
+          }
+          #mapElem {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            z-index: 10
+          }
+
+
+        </style>
     </head>
     <body>
       <div id="mapElem"></div>
+      <div id="desc">
+        <h1>Parkering i København</h1>
+        <p>... henter data, dette kan tage tid...</p>
+        <p>Kortet viser antallet af aktive parkeringsbilletter relativt til hvor mange der normalt er i brug, dvs. der er større eller mindre sandsynlighed for at finde en parkeringsplads i forhold til hvad det plejer (samt hvor du er)</p>
+        <p><b>Dette er en prototype / proof-of-concept lavet på to dage i forbindelse med et hackathon - forvent at det kan være ustabilt have fejl etc.</b></p>
+      </div>
+      <canvas id="canvas"></canvas>
       <script src="https://ssl.solsort.com/_kbh_parking.js"></script>
       <script src="points.js"></script>
       <script src="kbh-parking.js"></script>

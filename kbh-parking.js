@@ -2,10 +2,6 @@
 (function() {
   var canvasTiles, loadRecent, map, maxLat, maxLng, minLat, minLng, now, parkomatCount, parkomatGet, parkomats, render, sinh, tile2coordZoom, updatePoints;
 
-  if (!navigator.userAgent.match(/Chrome/)) {
-    throw "error";
-  }
-
   desc.style.fontSize = window.innerHeight * .03 + "px";
 
   map = L.map('mapElem');
@@ -70,7 +66,6 @@
           }
         }
       }
-      console.log(im, maxDist);
       return ctx.putImageData(im, 0, 0);
     }
     /*
@@ -125,9 +120,7 @@
 
   loadRecent = function(fn) {
     return parkomatCount(function(n) {
-      console.log("count", n);
       return parkomatGet(n - 70000, 70000, function(result) {
-        console.log("got n", result.length);
         return fn(result);
       });
     });
@@ -153,7 +146,6 @@
     }
     return loadRecent(function(events) {
       var current, event, latest, missing, _i, _len;
-      console.log(events[0]);
       latest = events.reduce((function(a, b) {
         if (a.tlPayDateTime > b.tlExpDateTime) {
           return a;
@@ -177,7 +169,6 @@
           ++missing;
         }
       }
-      console.log("missing out of", missing, current.length);
       parkomats = [];
       for (_ in points) {
         parkomat = points[_];
@@ -191,16 +182,14 @@
       parkomats.sort(function(a, b) {
         return a.weight - b.weight;
       });
-      console.log(parkomats);
-      console.log(minLat, maxLat, minLng, maxLng);
       return fn();
     });
   };
 
   render = function(fn) {
     var ctx, i, im, max, min, obj, parkomat, res, sorted, stat, stats, val, x, y, _i, _j, _k, _l, _len, _len1, _len2, _m, _n, _ref, _ref1, _ref2;
-    stats = [];
     res = 70;
+    stats = [];
     ctx = canvas.getContext("2d");
     ctx.width = ctx.height = canvas.width = canvas.height = res;
     for (_i = 0, _len = parkomats.length; _i < _len; _i++) {
@@ -217,7 +206,6 @@
       obj.used += parkomat.used;
       stats[x + y * res] = obj;
     }
-    console.log(stats);
     max = 0;
     min = 1000000;
     for (_j = 0, _len1 = stats.length; _j < _len1; _j++) {
@@ -238,10 +226,12 @@
       return a;
     });
     sorted.sort(function(a, b) {
-      return a.val - b.val;
+      return (a.val - b.val) || (b.weight - a.weight);
     });
     for (i = _l = 0, _ref = sorted.length - 1; 0 <= _ref ? _l <= _ref : _l >= _ref; i = 0 <= _ref ? ++_l : --_l) {
-      sorted[i].val = i / sorted.length * 256;
+      if (sorted[i].val !== 0) {
+        sorted[i].val = i / sorted.length * 256;
+      }
     }
     im = ctx.getImageData(0, 0, res, res);
     for (y = _m = 0, _ref1 = res - 1; 0 <= _ref1 ? _m <= _ref1 : _m >= _ref1; y = 0 <= _ref1 ? ++_m : --_m) {
@@ -258,15 +248,12 @@
       }
     }
     ctx.putImageData(im, 0, 0);
-    console.log(maxLat, minLat, maxLng, minLng);
     return fn();
   };
 
   $(function() {
     return updatePoints(function() {
-      console.log("B");
       return render(function() {
-        console.log(canvas.toDataURL());
         L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
         desc.style.opacity = 0;
         return desc.style.zIndex = 0;

@@ -10,11 +10,8 @@ hackathon code in progress
 
 # setup
 
-    mapElem.style.width = window.innerWidth + "px"
-    mapElem.style.height = window.innerHeight + "px"
-    mapElem.style.display = "inline-block"
-    mapElem.style.position = "absolute"
-    mapElem.style.top = mapElem.style.left = "0px"
+    
+    desc.style.fontSize =  window.innerHeight*.03 + "px"
     
     map = L.map('mapElem')
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -22,8 +19,9 @@ hackathon code in progress
         }).addTo(map)
     
     navigator.geolocation.getCurrentPosition (pos) ->
-      map.setView [pos.coords.latitude, pos.coords.longitude], 13
+      L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
     
+    map.setView [55.690, 12.5655300], 12
 
 # utility
 
@@ -42,9 +40,36 @@ hackathon code in progress
     canvasTiles = L.tileLayer.canvas()
     canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
       tile2coord = tile2coordZoom zoom
-      x = tilePoint.x
-      y = tilePoint.y
-      [lat, lng] = tile2coord x, y
+    
+      if false
+        ctx = canvas.getContext "2d"
+        im = ctx.getImageData 0,0,255,255
+        w = im.width
+        for y in [0..255] by 8
+          for x in [0..255] by 8
+            [lng, lat] = tile2coord tilePoint.x + x/256, tilePoint.y + y/256
+            d = 0
+            maxDist = 10000
+            parkomat = undefined
+            for _, obj of points
+              dlng = obj.lng - lng
+              dlng *= dlng
+              dlat = obj.lat - lat
+              dlat *= dlat
+              if dlat+dlng < maxDist
+                maxDist = dlat+dlng
+                parkomat = obj
+    
+            for dx in [0..7]
+              for dy in [0..7]
+                if maxDist < 0.01
+                  im.data[4*(x+dx+(y+dy)*w)] = parkomat.sampling*256/40000
+                  im.data[4*(x+dx+(y+dy)*w)+1] = parkomat.sampling*256/40000
+                  im.data[4*(x+dx+(y+dy)*w)+2] = parkomat.sampling*256/40000
+                  im.data[4*(x+dx+(y+dy)*w)+3] = 100
+        ctx.putImageData im, 0, 0
+    
+    
     
 
 console.log lat, lng, tile2coord x+1, y+1
@@ -58,10 +83,9 @@ console.log lat, lng, tile2coord x+1, y+1
 ##
 
     
-      
     canvasTiles.addTo map
 
-# experiment
+## talk with server
 
     
     parkomatGet = (offset, limit, fn) ->
@@ -75,7 +99,20 @@ console.log lat, lng, tile2coord x+1, y+1
         success: (data) ->
           fn(data.result?.records)
     
-    parkomatCount = (fn) ->
+
+##
+
+    parkomatGet = (offset, limit, fn) ->
+      $.ajax
+        url: "sample100000latest.json"
+        success: (data) ->
+          console.log data
+          fn(data.result?.records)
+
+##
+
+    
+    parkomatCount = (fn) -> #{{{2
       $.ajax
         url: 'http://data.kk.dk/api/action/datastore_search_sql'
         data:
@@ -84,10 +121,122 @@ console.log lat, lng, tile2coord x+1, y+1
         success: (data) ->
           fn +data.result.records[0].count
     
-    parkomatCount (n) ->
-      console.log "count", n
-      parkomatGet n - 3*24000, 3*24000, (result) ->
-        console.log "got n", result.length
+    loadRecent = (fn) -> #{{{2
+      parkomatCount (n) ->
+
+TODO: should probably be closer to 100000
+
+        parkomatGet n - 70000, 70000, (result) ->
+
+parkomatGet n - 700, 700, (result) ->
+
+          fn result
+    
+    now = undefined
+    parkomats = undefined
+    minLat = 1000
+    minLng = 1000
+    maxLat = 0
+    maxLng = 0
+    
+
+# draw overlay
+
+    updatePoints = (fn) ->
+      for _, parkomat of points
+        parkomat.used = 0
+      loadRecent (events) ->
+        latest = events.reduce ((a, b)->
+          if a.tlPayDateTime > b.tlExpDateTime then a else b
+        ), {tlPayDateTime: ""}
+        now = latest.tlPayDateTime
+    
+        missing = 0
+        current = (events.filter (e) -> e.tlPayDateTime < now < e.tlExpDateTime)
+        for event in current
+          parkomat = points[event.tlPDM]
+          if parkomat
+            ++parkomat.used
+          else
+            ++missing
+    
+        parkomats = []
+        for _, parkomat of points
+          minLat = Math.min minLat, parkomat.lat
+          maxLat = Math.max maxLat, parkomat.lat
+          minLng = Math.min minLng, parkomat.lng
+          maxLng = Math.max maxLng, parkomat.lng
+          parkomat.weight = parkomat.used / parkomat.sampling
+          parkomats.push parkomat
+    
+        parkomats.sort (a,b) ->
+          a.weight - b.weight
+    
+        fn()
+    
+    
+    render = (fn) ->
+      res = 70
+      stats =  []
+    
+      ctx = canvas.getContext "2d"
+    
+      ctx.width = ctx.height = canvas.width = canvas.height = res
+      for parkomat in parkomats
+        x = (parkomat.lng - minLng) / (maxLng - minLng)
+        y = (maxLat - parkomat.lat) / (maxLat - minLat)
+        x = x * res >>> 0
+        y = y * res >>> 0
+        obj = stats[x+y*res] ||
+          weight: 0
+          used: 0
+        obj.weight += parkomat.sampling
+        obj.used += parkomat.used
+        stats[x+y*res] = obj
+      max = 0
+      min = 1000000
+      for stat in stats
+        if stat && stat.weight
+          stat.val = stat.used/stat.weight
+          max = Math.max(max, stat.val)
+          min = Math.min(min, stat.val)
+    
+      for stat in stats
+        if stat
+          stat.val = (stat.val - min) / (max - min)
+    
+      sorted = stats.filter (a) -> a
+      sorted.sort (a,b) ->
+        return (a.val - b.val) || (b.weight - a.weight)
+    
+    
+      for i in [0..sorted.length-1]
+        if sorted[i].val != 0
+          sorted[i].val = i/sorted.length*256
+    
+    
+    
+      im = ctx.getImageData 0,0,res,res
+      for y in [0..res-1]
+        for x in [0..res-1]
+          val = 0
+          stat = stats[x+y*res]
+          if stat
+            val = stat.val
+            im.data[4*(x+y*res)+0] = val
+            im.data[4*(x+y*res)+1] = 255 - val
+            im.data[4*(x+y*res)+2] = 0
+            im.data[4*(x+y*res)+3] = 150
+      ctx.putImageData im, 0, 0
+      fn()
+    
+    
+    $ ->
+      updatePoints ->
+        render ->
+          L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
+          desc.style.opacity = 0
+          desc.style.zIndex = 0
     
 
 ----

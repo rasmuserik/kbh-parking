@@ -2,8 +2,6 @@
 #
 # hackathon code in progress
 #
-if !navigator.userAgent.match(/Chrome/)
-  throw "error"
 #{{{1 setup
 
 desc.style.fontSize =  window.innerHeight*.03 + "px"
@@ -58,7 +56,6 @@ canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
               im.data[4*(x+dx+(y+dy)*w)+1] = parkomat.sampling*256/40000
               im.data[4*(x+dx+(y+dy)*w)+2] = parkomat.sampling*256/40000
               im.data[4*(x+dx+(y+dy)*w)+3] = 100
-    console.log im, maxDist
     ctx.putImageData im, 0, 0
 
 
@@ -71,9 +68,8 @@ canvasTiles.drawTile = (canvas, tilePoint, zoom) ->
   ), 1000
   ###
 
-  
 canvasTiles.addTo map
-#{{{1 talk with server
+#{{{2 talk with server
 
 parkomatGet = (offset, limit, fn) ->
   $.ajax
@@ -106,10 +102,9 @@ parkomatCount = (fn) -> #{{{2
 
 loadRecent = (fn) -> #{{{2
   parkomatCount (n) ->
-    console.log "count", n
     # TODO: should probably be closer to 100000
     parkomatGet n - 70000, 70000, (result) ->
-      console.log "got n", result.length
+   # parkomatGet n - 700, 700, (result) ->
       fn result
 
 now = undefined
@@ -124,7 +119,6 @@ updatePoints = (fn) ->
   for _, parkomat of points
     parkomat.used = 0
   loadRecent (events) ->
-    console.log events[0]
     latest = events.reduce ((a, b)->
       if a.tlPayDateTime > b.tlExpDateTime then a else b
     ), {tlPayDateTime: ""}
@@ -139,8 +133,6 @@ updatePoints = (fn) ->
       else
         ++missing
 
-    console.log "missing out of", missing, current.length
-
     parkomats = []
     for _, parkomat of points
       minLat = Math.min minLat, parkomat.lat
@@ -153,15 +145,12 @@ updatePoints = (fn) ->
     parkomats.sort (a,b) ->
       a.weight - b.weight
 
-    console.log parkomats
-    console.log minLat, maxLat, minLng, maxLng
-
     fn()
 
 
 render = (fn) ->
-  stats =  []
   res = 70
+  stats =  []
 
   ctx = canvas.getContext "2d"
 
@@ -177,7 +166,6 @@ render = (fn) ->
     obj.weight += parkomat.sampling
     obj.used += parkomat.used
     stats[x+y*res] = obj
-  console.log stats
   max = 0
   min = 1000000
   for stat in stats
@@ -189,11 +177,17 @@ render = (fn) ->
   for stat in stats
     if stat
       stat.val = (stat.val - min) / (max - min)
+
   sorted = stats.filter (a) -> a
   sorted.sort (a,b) ->
-    return a.val  - b.val
+    return (a.val - b.val) || (b.weight - a.weight)
+
+
   for i in [0..sorted.length-1]
-    sorted[i].val = i/sorted.length*256
+    if sorted[i].val != 0
+      sorted[i].val = i/sorted.length*256
+
+
 
   im = ctx.getImageData 0,0,res,res
   for y in [0..res-1]
@@ -207,15 +201,12 @@ render = (fn) ->
         im.data[4*(x+y*res)+2] = 0
         im.data[4*(x+y*res)+3] = 150
   ctx.putImageData im, 0, 0
-  console.log maxLat, minLat, maxLng, minLng
   fn()
 
 
 $ ->
   updatePoints ->
-    console.log "B"
     render ->
-      console.log canvas.toDataURL()
       L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
       desc.style.opacity = 0
       desc.style.zIndex = 0

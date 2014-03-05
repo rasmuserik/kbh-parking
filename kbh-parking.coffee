@@ -204,7 +204,8 @@ render = (fn) ->
   fn()
 
 
-run ->
+#{{{1 main
+run = ->
   updatePoints ->
     render ->
       L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);

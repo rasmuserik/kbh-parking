@@ -204,9 +204,11 @@ render = (fn) ->
   fn()
 
 
-$ ->
+run ->
   updatePoints ->
     render ->
       L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
       desc.style.opacity = 0
       desc.style.zIndex = 0
+$ run
+document.ondeviceready = run

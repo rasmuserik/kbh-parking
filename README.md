@@ -1,4 +1,4 @@
-# Parkering i København 0.0.1
+# Parkering i København 0.0.2
 
 Visualisering af hvor der måske er parkeringspladser i København. Kan være upræcis, da det udregnes ud fra antal aktive betalinger i parkometre i området relativt gennemsnitligt antal betalinger i parkometre. Data fra data.kk.dk. Lavet på OKFN open data day.
 
@@ -229,12 +229,14 @@ parkomatGet n - 700, 700, (result) ->
       fn()
     
     
-    $ ->
+    run ->
       updatePoints ->
         render ->
           L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
           desc.style.opacity = 0
           desc.style.zIndex = 0
+    $ run
+    document.ondeviceready = run
     
 
 ----

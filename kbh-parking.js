@@ -251,7 +251,7 @@
     return fn();
   };
 
-  $(function() {
+  run(function() {
     return updatePoints(function() {
       return render(function() {
         L.imageOverlay(canvas.toDataURL(), [[minLat, minLng], [maxLat, maxLng]]).addTo(map);
@@ -260,5 +260,9 @@
       });
     });
   });
+
+  $(run);
+
+  document.ondeviceready = run;
 
 }).call(this);

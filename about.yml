@@ -1,0 +1,7 @@
+name: kbh-parking
+title: Parkering i København
+desc: Visualisering af hvor der måske er parkeringspladser i København. Kan være upræcis, da det udregnes ud fra antal aktive betalinger i parkometre i området relativt gennemsnitligt antal betalinger i parkometre. Data fra data.kk.dk. Lavet på OKFN open data day.
+tags: [app, parking, geolocation, københavn, copenhagen, data.kk.dk, hackathon, open data day, okfn, data.kk.dk, gatesense, iotpeople]
+phonegap:
+  plugins:
+    - org.apache.cordova.geolocation

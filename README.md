@@ -1,8 +1,6 @@
-# kbh-parking 0.0.1
+# Parkering i København 0.0.1
 
-parking map during hackathon
-[![browser support](https://ci.testling.com/rasmuserik/kbh-parking.png)](http://ci.testling.com/rasmuserik/kbh-parking)
-
+Visualisering af hvor der måske er parkeringspladser i København. Kan være upræcis, da det udregnes ud fra antal aktive betalinger i parkometre i området relativt gennemsnitligt antal betalinger i parkometre. Data fra data.kk.dk. Lavet på OKFN open data day.
 
 # Code during iot hackathon
 

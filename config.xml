@@ -9,20 +9,60 @@
     <name>Parkering i København</name>
     <description>Visualisering af hvor der måske er parkeringspladser i København. Kan være upræcis, da det udregnes ud fra antal aktive betalinger i parkometre i området relativt gennemsnitligt antal betalinger i parkometre. Data fra data.kk.dk. Lavet på OKFN open data day.</description>
     <author href="http://solsort.com" email="kbh-parking@solsort.com">Rasmus Erik Voel Jensen (solsort.com)</author>
-    <preference name="phonegap-version" value="3.3.0" />
-    <preference name="orientation" value="default" />
-    <preference name="target-device" value="universal" />
-    <preference name="fullscreen" value="false" />
-    <preference name="prerendered-icon" value="true" />
-    <preference name="ios-statusbarstyle" value="black-opaque" />
-    <preference name="detect-data-types" value="false" />
-    <preference name="exit-on-suspend" value="false" />
-    <preference name="auto-hide-splash-screen" value="true" />
-    <preference name="android-minSdkVersion" value="10" />
-    <preference name="android-installLocation" value="auto" />
-    <preference name="permissions" value="none" />
-        <gap:plugin name="org.apache.cordova.geolocation" />
     <icon src="icon.png" />
-    
+    <!--splash src="www/assets/splash.png" /-->
+
+    <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
+
+    <preference name="orientation" value="default" />
+    <preference name="permissions" value="none" /> 
+    <preference name="auto-hide-splash-screen" value="true" />
+    <preference name="fullscreen" value="false" />
+    <preference name="DisallowOverscroll" value="false" />
+
+    <feature name="http://api.phonegap.com/1.0/geolocation" />
+    <!--feature name="http://api.phonegap.com/1.0/network" />
+    <feature name="http://api.phonegap.com/1.0/camera" />
+    <feature name="http://api.phonegap.com/1.0/notification" />
+    <feature name="http://api.phonegap.com/1.0/media" />
+    <feature name="http://api.phonegap.com/1.0/contacts" />
+    <feature name="http://api.phonegap.com/1.0/file" />
+    <feature name="http://api.phonegap.com/1.0/battery" />
+    <feature name="http://api.phonegap.com/1.0/device" /-->
+
+ 
+    <engine name="android" />
+    <platform name="android">
+       <preference name="android-installLocation" value="internalOnly" /> 
+       <!--preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" /--> 
+    </platform>
+
+    <!--engine name="ios" />
+    <platform name="ios">
+        <preference name="target-device" value="universal" />
+        <preference name="prerendered-icon" value="false" />
+        <preference name="ios-statusbarstyle" value="black-opaque" />
+        <preference name="detect-data-types" value="false" />
+        <preference name="exit-on-suspend" value="false" />
+        <preference name="deployment-target" value="7.0" />
+    </platform-->
+
+    <engine name="browser" />
+    <engine name="ubuntu" />
+
+    <!--
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    ios:
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+    android:
+        <allow-intent href="market:*" />
+
+    -->
 </widget>
